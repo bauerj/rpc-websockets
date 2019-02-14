@@ -159,11 +159,14 @@ export default class Server extends EventEmitter
         this.on(name, (...params) =>
         {
             // flatten an object if no spreading is wanted
-            if (params.length === 1 && params[0] instanceof Object)
+            if (params.length === 1 && params[0] instanceof Object) 
                 params = params[0]
+                
 
             for (const socket_id of this.namespaces[ns].events[name])
             {
+                if (socket_id === params["from_client"])
+                    continue
                 const socket = this.namespaces[ns].clients.get(socket_id)
 
                 if (!socket)
@@ -553,7 +556,7 @@ export default class Server extends EventEmitter
 
         let response = null
 
-        try { response = await this.namespaces[ns].rpc_methods[message.method](message.params) }
+        try { response = await this.namespaces[ns].rpc_methods[message.method](message.params, socket_id) }
 
         catch (error)
         {
